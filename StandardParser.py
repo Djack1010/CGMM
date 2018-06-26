@@ -5,6 +5,9 @@ import os
 
 def parse(data_path='./Example_Data/', mode='unsup', shuffle=True):
 
+    print(mode)
+    return
+
     graphs = []
 
     files = os.listdir(data_path)
@@ -22,6 +25,10 @@ def parse(data_path='./Example_Data/', mode='unsup', shuffle=True):
             #labels_filename = 'labels_C5-' + prefix + '.txt'
 
             print('Parsing', prefix)
+            if prefix[-1] == 0 :
+                mutVal=0
+            else:
+                mutVal=1
 
             lines = open(filename).readlines()[1:]  # skip the first line
             #labels_lines = open(labels_filename).readlines()[1:]  # skip the first line
@@ -47,6 +54,12 @@ def parse(data_path='./Example_Data/', mode='unsup', shuffle=True):
                 X.append(label_id)
                 if mode == 'unsup':
                     Y.append(label_id)
+                elif mode == 'sup':
+                    Y.append(mutVal)
+                else:
+                    print('ERROR')
+                    return
+                    
                 
 
                 for i in range(0, len(adj_list)//2):
@@ -58,11 +71,6 @@ def parse(data_path='./Example_Data/', mode='unsup', shuffle=True):
                 adjacency_lists.append(incoming_list)
 
             # A graph is a tuple (X,Y,adj_lists,dim), where Y==X in unsup. tasks
-            if mode == 'sup':
-                if prefix[-1] == 0 :
-                    Y.append(0)
-                else:
-                    Y.append(1)
             graphs.append((np.array(X, dtype='int'), np.array(Y, dtype='int'), adjacency_lists, len(adjacency_lists)))
 
     if shuffle:

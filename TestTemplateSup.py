@@ -5,7 +5,7 @@ from StandardParser import parse
 # Number of arc labels
 A = 4 
 # Number of node labels
-M = 122         
+M = 384         
 # Data Path
 DATA_PATH='./Example_Data/' 
 #--------------------------

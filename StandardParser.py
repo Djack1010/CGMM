@@ -21,7 +21,7 @@ def parse(data_path='./Example_Data/', mode='unsup', shuffle=True):
 
             #labels_filename = 'labels_C5-' + prefix + '.txt'
 
-            print('Parsing', prefix)
+            #print('Parsing', prefix)
 
             if str(prefix[-1]) == '0':
                 mutVal=0

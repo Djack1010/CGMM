@@ -5,9 +5,6 @@ import os
 
 def parse(data_path='./Example_Data/', mode='unsup', shuffle=True):
 
-    print(mode)
-    return
-
     graphs = []
 
     files = os.listdir(data_path)
@@ -25,7 +22,8 @@ def parse(data_path='./Example_Data/', mode='unsup', shuffle=True):
             #labels_filename = 'labels_C5-' + prefix + '.txt'
 
             print('Parsing', prefix)
-            if prefix[-1] == 0 :
+
+            if str(prefix[-1]) == '0':
                 mutVal=0
             else:
                 mutVal=1
@@ -46,8 +44,8 @@ def parse(data_path='./Example_Data/', mode='unsup', shuffle=True):
                 label_id = int(line[1])
                 adj_list = line[2:]
 
-                print('NodeID:',node_id,',label:',label_id,',Number of incoming edges:', len(adj_list)//2)
-                print('adj_list:', adj_list)
+                #print('NodeID:',node_id,',label:',label_id,',Number of incoming edges:', len(adj_list)//2)
+                #print('adj_list:', adj_list)
 
                 incoming_list = []
 

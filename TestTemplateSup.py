@@ -13,26 +13,27 @@ DATA_PATH='./Example_Data/'
 name = 'TestTemplate'
 
 C = 40
-layer = 2
+layer = 8
 concatenate_fingerprints = True
 
-svmC = 100
+svmC = 10
 gamma = 5
-unibigram = True
 
 threshold = 0.
-max_epochs = 3
+max_epochs = 30
 Lprec = np.array([1], dtype='int')
 
 graphs_train = parse(DATA_PATH, 'sup')
+
 X_train, Y_train, adjacency_lists_train, sizes_train = unravel(graphs_train, one_target_per_graph=True)
 
 # OPEN A LOG FILE WHERE TO STORE RESULTS
 logging.basicConfig(
-    filename=name + '_' + datetime.now().strftime('%Y-%m-%d %H:%M:%S') + '.log', level=logging.DEBUG, filemode='a')
+    filename=name + '_sup.log', level=logging.DEBUG, filemode='a')
+logging.info("NEW EXPERIMENT")
 
 # PERFORM TRAINING over the entire training set
-runs = 1
+runs = 3
 for run in range(0, runs):
 
     architecture = None
@@ -57,5 +58,4 @@ for run in range(0, runs):
 
         pickle.dump([unigram_train, unigram_valid, allStates_train, allStates_valid, adjacency_lists_train, adjacency_lists_valid, sizes_train, sizes_valid, Y_train, Y_valid], f)
 
-
-    fingerprints_to_svm_accuracy(C, Lprec, layer, runs, svmC, gamma, concatenate_fingerprints, name)
+fingerprints_to_svm_accuracy(C, Lprec, layer, runs, svmC, gamma, concatenate_fingerprints, name)

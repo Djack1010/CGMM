@@ -1,36 +1,63 @@
 from CGMM.TrainingUtilities import *
 from StandardParser import parse
+from datetime import datetime
+import argparse
+import sys
+import os
+
+parser = argparse.ArgumentParser()
+parser.add_argument("--arcLabels", "-al", type=int, default=4, help="number of arc labels (default 4)")
+parser.add_argument("--nodeLabels", "-nl", type=int, default=384, help="number of node labels (default 384)")
+parser.add_argument("--trainDataPath", "-tdp", default="./Example_Data/", help="training data path (./Example_Data/)")
+parser.add_argument("--validDataPath", "-vdp", default="./Example_Data/", help="validation data path (./Example_Data/)")
+parser.add_argument("-C", "--C", type=int, default=40, help="default 40")
+parser.add_argument("--fingerprintsFolder", "-ff", default="f1", help="default f1")
+parser.add_argument("--layers", "-l", type=int, default=6, help="number of layers (default 6)")
+#parser.add_argument("-concatenate", "--concatenate", action='store_true', help="number of layers (default 6)")
+parser.add_argument("--epochs", "-e", type=int, default=15, help="number of epochs (default 15)")
+#parser.add_argument("-v", "--verbose", action="store_true", help="increase output verbosity")
+args = parser.parse_args()
 
 #------VARIABLE TO SET-----
 # Number of arc labels
-A = 4 
+A = args.arcLabels 
 # Number of node labels
-M = 384         
+M = args.nodeLabels         
 # Data Path
-DATA_PATH='./Example_Data/' 
+DATA_PATH_TRAINING=args.trainDataPath
+DATA_PATH_VALIDATION=args.validDataPath
+fingFolder=args.fingerprintsFolder
 #--------------------------
 
-name = 'TestTemplate'
+name = 'Test_' + args.fingerprintsFolder
 
-C = 40
-layer = 8
+C = args.C
+layer = args.layers
 concatenate_fingerprints = True
 
 svmC = 10
 gamma = 5
 
 threshold = 0.
-max_epochs = 30
+max_epochs = args.epochs
 Lprec = np.array([1], dtype='int')
+print('Dataset info -> Node labels:',M,'; Arc labels:',A)
+print('Hyperparameters -> C:',C,'; layers:',layer,'; epochs:',max_epochs)
 
-graphs_train = parse(DATA_PATH, 'sup')
+print('Parse Training Data')
+graphs_train = parse(DATA_PATH_TRAINING, 'sup')
+
+print('Parse Validation Data')
+graphs_valid = parse(DATA_PATH_VALIDATION, 'sup')
 
 X_train, Y_train, adjacency_lists_train, sizes_train = unravel(graphs_train, one_target_per_graph=True)
+X_valid, Y_valid, adjacency_lists_valid, sizes_valid = unravel(graphs_valid, one_target_per_graph=True)
 
 # OPEN A LOG FILE WHERE TO STORE RESULTS
-logging.basicConfig(
-    filename=name + '_sup.log', level=logging.DEBUG, filemode='a')
-logging.info("NEW EXPERIMENT")
+timenow=str(datetime.now())
+logging.basicConfig(filename='Test_sup.log', level=logging.DEBUG, filemode='a')
+logging.info('NEW EXPERIMENT ' + fingFolder +' -> start at '+ timenow) #C:',C,'; layers:',layer,'; epochs:',max_epochs
+logging.info('INFO: ' + str(A) + ' ' + str(M) + ' ' + str(C) + ' ' + str(layer) + ' ' + str(concatenate_fingerprints) + ' ' + str(svmC) + ' ' + str(gamma) + ' ' + str(max_epochs) + ' ' + str(Lprec))
 
 # PERFORM TRAINING over the entire training set
 runs = 3
@@ -49,13 +76,15 @@ for run in range(0, runs):
     unigram_train, allStates_train = compute_input_matrix(architecture, C, X_train, adjacency_lists_train, sizes_train,
                                                           concatenate=concatenate_fingerprints, return_all_states=True)
 
+    unigram_valid, allStates_valid = compute_input_matrix(architecture, C, X_valid, adjacency_lists_valid, sizes_valid,
+                                                        concatenate=concatenate_fingerprints, return_all_states=True)
 
-    with open("fingerprints/" + name + '_' + str(run) + '_' + str(C) + '_' + str(layer) + '_' + str(Lprec)
-                      + '_' + str(concatenate_fingerprints), 'wb') as f:
+    newpath = "./fingerprints/" + fingFolder + "/"
+    if not os.path.exists(newpath):
+        os.makedirs(newpath)
 
-        # DEBUG: use a validation set equal to train. Just to make it work!
-        unigram_valid, allStates_valid, adjacency_lists_valid, sizes_valid, Y_valid = unigram_train, allStates_train, adjacency_lists_train, sizes_train, Y_train
-
+    with open(newpath + name + '_' + str(run) + '_' + str(C) + '_' + str(layer) + '_' + str(Lprec) + '_' + str(concatenate_fingerprints) + '.cgmmOutput', 'wb') as f:
         pickle.dump([unigram_train, unigram_valid, allStates_train, allStates_valid, adjacency_lists_train, adjacency_lists_valid, sizes_train, sizes_valid, Y_train, Y_valid], f)
+        #pickle.dump(Info di architecture)
 
-fingerprints_to_svm_accuracy(C, Lprec, layer, runs, svmC, gamma, concatenate_fingerprints, name)
+fingerprints_to_svm_accuracy(newpath, C, Lprec, layer, runs, svmC, gamma, concatenate_fingerprints, name)

@@ -551,7 +551,7 @@ def compute_fingerprints(C, K, A, Lprec, adjacency_lists_train, X_train, Y_train
         lock.release()
 
 
-def fingerprints_to_svm_accuracy(C, Lprec, layer, runs, svmC, gamma, concatenate_fingerprints, fingerprint_name):
+def fingerprints_to_svm_accuracy(path, C, Lprec, layer, runs, svmC, gamma, concatenate_fingerprints, fingerprint_name):
     '''
     Load the stored fingerprint (see compute_fingerprints), computes the accuracy on it using a SVM with RBF kernel
     and log information about average (over runs) training and validation accuracy and standard deviation.
@@ -572,9 +572,9 @@ def fingerprints_to_svm_accuracy(C, Lprec, layer, runs, svmC, gamma, concatenate
     vl_runs = [0. for _ in range(0, runs)]
 
     for run in range(0, runs):
-        with open("./fingerprints/" + fingerprint_name + '_' + str(run) + '_' + str(C) + '_' +
+        with open(path + fingerprint_name + '_' + str(run) + '_' + str(C) + '_' +
                           str(layer) + '_' + str(Lprec) + '_' +
-                          str(concatenate_fingerprints), 'rb') as f:
+                          str(concatenate_fingerprints) + '.cgmmOutput', 'rb') as f:
             [unigram_train, unigram_valid, allStates_train, allStates_valid, adjacency_lists_train,
              adjacency_lists_valid, sizes_train, sizes_valid, Y_train, Y_valid] = pickle.load(f)
 
@@ -596,9 +596,7 @@ def fingerprints_to_svm_accuracy(C, Lprec, layer, runs, svmC, gamma, concatenate
     vl_acc = np.average(vl_runs)
     vl_std = np.std(vl_runs)
 
-    log = fingerprint_name + ' ' + str(C) + ' ' + str(layer) + ' ' + str(Lprec) + ' ' + \
-          str(concatenate_fingerprints) + ' ' + str(svmC) + ' ' + str(gamma) + ' ' + str(tr_acc) + ' ' + \
-          str(tr_std) + ' ' + str(vl_acc) + ' ' + str(vl_std)
+    log = fingerprint_name + ' RES->\t' + 'T:' + str(tr_acc)[:6] + '+' + str(tr_std)[:5] + '\tV: ' + str(vl_acc) + '+' + str(vl_std)
 
     logging.info(log)
 

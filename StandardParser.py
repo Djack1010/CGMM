@@ -3,7 +3,7 @@ import random
 
 import os
 
-def parse(data_path='./Example_Data/', mode='unsup', shuffle=True):
+def parse(data_path='./Example_Data/', mode='sup', shuffle=True):
 
     graphs = []
 
@@ -15,7 +15,7 @@ def parse(data_path='./Example_Data/', mode='unsup', shuffle=True):
 
             filename=data_path+basefile
 
-            print('Working with', filename)
+            #print('Working with', filename)
 
             prefix = filename[:-8]  # remove .adjlist
 
@@ -74,9 +74,9 @@ def parse(data_path='./Example_Data/', mode='unsup', shuffle=True):
     if shuffle:
         random.shuffle(graphs)
 
-    print("Parsed ", len(graphs), " graphs")
+    print("Parsed ", len(graphs), " graphs in mode ", mode)
 
     return graphs
 
 
-graphs = parse()
+#graphs = parse()

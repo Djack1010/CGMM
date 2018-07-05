@@ -11,7 +11,7 @@ function progrBar {
     COUNT=0
     #echo -ne ""\\r
     #echo -e "\n"
-    echo "$PAR out of $TOT - RUNNING $(jobs | grep "Running" | wc -l)"
+    echo "$PAR out of $TOT - RUNNING $(jobs | grep "Running" | wc -l) - PHASE $LAYERIND/3"
     echo -ne "["
     while [ "$TEMPPER" -gt "0" ]; do
         TEMPPER=$(($TEMPPER-2))
@@ -118,6 +118,10 @@ if [ "$MODE" == "k" ]; then
         MAX=2
     fi
     mkdir -p $SCRIPTPATH/logsRun
+
+    LAYERSARRAY=("2" "4" "6" "8")
+    LAYERIND=0
+    TOTJOBS=$(($KNUM*4))
     IND=0
     while true; do
         if [ "$IND" -ge "$KNUM" ]; then
@@ -126,10 +130,16 @@ if [ "$MODE" == "k" ]; then
                 progrBar $PARNOW $KNUM
                 sleep $UPDATE
             done
-            break
+            LAYERIND=$(($LAYERIND+1))
+            if [ "$LAYERIND" -ge "4" ]; then
+                break
+            else
+                IND=0
+                $SCRIPTPATH/clean.sh -soft
+            fi
         elif [ "$(jobs | grep "Running" | wc -l)" -lt "$MAX" ]; then
             #echo "$IND out of $KNUM - JOBS RUNNING: $(jobs | wc -l)"
-            $SCRIPTPATH/oneInstance.sh ${JOBSARRAY[$IND]} &
+            $SCRIPTPATH/oneInstance.sh ${JOBSARRAY[$IND]} ${LAYERSARRAY[$LAYERIND]} &
             IND=$(($IND+1))
         else
             #echo "BUSY SITUATION - JOBS RUNNING: $(jobs | wc -l)"

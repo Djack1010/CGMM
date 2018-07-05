@@ -49,6 +49,7 @@ graphs_train = parse(DATA_PATH_TRAINING, 'sup')
 
 print('Parse Validation Data')
 graphs_valid = parse(DATA_PATH_VALIDATION, 'sup')
+print('Parsing DONE')
 
 X_train, Y_train, adjacency_lists_train, sizes_train = unravel(graphs_train, one_target_per_graph=True)
 X_valid, Y_valid, adjacency_lists_valid, sizes_valid = unravel(graphs_valid, one_target_per_graph=True)

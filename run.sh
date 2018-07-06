@@ -11,7 +11,7 @@ function progrBar {
     COUNT=0
     #echo -ne ""\\r
     #echo -e "\n"
-    echo "$PAR out of $TOT - RUNNING $(jobs | grep "Running" | wc -l) - PHASE $LAYERIND/3"
+    echo "$PAR out of $TOT - RUNNING $(jobs | grep "Running" | wc -l) - PHASE $(($LAYERIND+1))/$LARLENGHT"
     echo -ne "["
     while [ "$TEMPPER" -gt "0" ]; do
         TEMPPER=$(($TEMPPER-2))
@@ -61,6 +61,14 @@ else
                 UsageInfo
             else
                 MAX=${myArray[$n]}
+                n=$(($n+1))
+            fi
+        elif [[ "${myArray[$n]}" == "-nl" ]]; then
+            n=$(($n+1))
+            if [ -z "${myArray[$n]}" ]; then
+                UsageInfo
+            else
+                NL=${myArray[$n]}
                 n=$(($n+1))
             fi
         elif [[ "${myArray[$n]}" == "-help" ]]; then
@@ -113,13 +121,18 @@ if [ "$MODE" == "k" ]; then
         done
     done
     PIDRUN=$$
-    UPDATE=60
     if [ -z "$MAX" ]; then
         MAX=2
     fi
     mkdir -p $SCRIPTPATH/logsRun
 
-    LAYERSARRAY=("2" "4" "6" "8")
+    #-----------------------------------
+    #----------SET VARIABLE-------------
+    LAYERSARRAY=("2" "4" "6" "8" "10")
+    LARLENGHT=5
+    UPDATE=60
+    #-----------------------------------
+
     LAYERIND=0
     TOTJOBS=$(($KNUM*4))
     IND=0
@@ -130,17 +143,19 @@ if [ "$MODE" == "k" ]; then
                 progrBar $PARNOW $KNUM
                 sleep $UPDATE
             done
+            $SCRIPTPATH/clean.sh -soft
+            $SCRIPTPATH/calculateResult.sh ${LAYERSARRAY[$LAYERIND]}
             LAYERIND=$(($LAYERIND+1))
-            if [ "$LAYERIND" -ge "4" ]; then
+            if [ "$LAYERIND" -ge "$LARLENGHT" ]; then
                 break
             else
                 IND=0
-                $SCRIPTPATH/clean.sh -soft
             fi
         elif [ "$(jobs | grep "Running" | wc -l)" -lt "$MAX" ]; then
             #echo "$IND out of $KNUM - JOBS RUNNING: $(jobs | wc -l)"
-            $SCRIPTPATH/oneInstance.sh ${JOBSARRAY[$IND]} ${LAYERSARRAY[$LAYERIND]} &
+            $SCRIPTPATH/oneInstance.sh ${JOBSARRAY[$IND]} ${LAYERSARRAY[$LAYERIND]} $NL &
             IND=$(($IND+1))
+        
         else
             #echo "BUSY SITUATION - JOBS RUNNING: $(jobs | wc -l)"
             PARNOW=$(($IND-$(jobs | wc -l)))
@@ -148,7 +163,6 @@ if [ "$MODE" == "k" ]; then
             sleep $UPDATE
         fi
     done
-
 fi
 
 echo -e "\n\nENDING run.sh SCRIPT"

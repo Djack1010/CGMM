@@ -4,13 +4,13 @@
 
 SCRIPTPATH=$PWD
 TESTNUM=$1
-mkdir -p $SCRIPTPATH/RESULTS/res_$TESTNUM
+mkdir -p $SCRIPTPATH/RESULTS
 
-if [ ! -f $SCRIPTPATH/Test_sup$TESTNUM.log ]; then
+if [ ! -f $SCRIPTPATH/Test_sup.log ]; then
     echo "Test_sup.log file not found, exiting..."
     exit
 else
-    mv $SCRIPTPATH/Test_sup$TESTNUM.log $SCRIPTPATH/RESULTS/res_$TESTNUM
+    mv $SCRIPTPATH/Test_sup.log $SCRIPTPATH/RESULTS/Test_sup_$TESTNUM.log
 fi
 
 T=0
@@ -20,8 +20,17 @@ SV=0
 N=0
 while read l; do
     if [ "$(echo $l | grep "RES->")" ]; then
-        T=$(bc <<< "scale = 6; ${T} + $(echo $l | cut -d':' -f4 | cut -d'+' -f1) ")        N=$(($N+1))
+        CLEANLINE=$(echo ${l/e/*10^})
+        T=$(bc <<< "scale = 6; ${T} + $(echo $l | cut -d':' -f4 | cut -d'+' -f1) ")        
+        ST=$(bc <<< "scale = 6; ${ST} + $(echo $l | cut -d':' -f4 | cut -d'+' -f2 | cut -d' ' -f1 | sed -e 's/e/\*10\^/g') ")        
+        V=$(bc <<< "scale = 6; ${V} + $(echo $l | cut -d':' -f5 | cut -d'+' -f1) ")        
+        SV=$(bc <<< "scale = 6; ${SV} + $(echo $l | cut -d':' -f5 | cut -d'+' -f2 | sed -e 's/e/\*10\^/g')  ") 
+        N=$(($N+1))
     fi    
-done < $SCRIPTPATH/RESULTS/res_$TESTNUM/Test_sup$TESTNUM.log
-echo $(bc <<< "scale = 2; $T / $N ") >>
-#PER=$(bc <<< "scale = 2; ($PAR / $TOT) * 100")
+done < $SCRIPTPATH/RESULTS/Test_sup_$TESTNUM.log
+T=$(bc <<< "scale = 4; ${T} / ${N} ")        
+ST=$(bc <<< "scale = 2; ${ST} / ${N} ")        
+V=$(bc <<< "scale = 4; ${V} / ${N} ")        
+SV=$(bc <<< "scale = 2; ${SV} / ${N} ") 
+echo "FINAL RESULT-> T:$T+$ST V:$V+$SV" >> $SCRIPTPATH/RESULTS/Test_sup_$TESTNUM.log
+date >> $SCRIPTPATH/RESULTS/Test_sup_$TESTNUM.log

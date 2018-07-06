@@ -8,6 +8,8 @@ fi
 for logFile in $(find $SCRIPTPATH -name "*.log" -o -name "*.cgmmOutput"); do
     if [ "$logFile" == "$SCRIPTPATH/Test_sup.log" ] && [ "$SOFT" ]; then
         continue
+    elif [ "$(echo $logFile | grep "RESULTS/Test_sup_")" ] && [ "$SOFT" ]; then
+        continue
     else
         rm $logFile
     fi

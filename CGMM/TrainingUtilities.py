@@ -596,7 +596,7 @@ def fingerprints_to_svm_accuracy(path, C, Lprec, layer, runs, svmC, gamma, conca
     vl_acc = np.average(vl_runs)
     vl_std = np.std(vl_runs)
 
-    log = fingerprint_name + ' RES->\t' + 'T:' + str(tr_acc)[:6] + '+' + str(tr_std)[:5] + '\tV: ' + str(vl_acc) + '+' + str(vl_std)
+    log = fingerprint_name + ' RES->\t' + 'T:' + str(tr_acc) + '+' + str(tr_std) + ' V:' + str(vl_acc) + '+' + str(vl_std)#[:6][:5]
 
     logging.info(log)
 

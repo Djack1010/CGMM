@@ -35,8 +35,8 @@ C = args.C
 layer = args.layers
 concatenate_fingerprints = True
 
-svmC = 10
-gamma = 5
+#svmC = 10
+#gamma = 5
 
 threshold = 0.
 max_epochs = args.epochs
@@ -58,9 +58,9 @@ X_valid, Y_valid, adjacency_lists_valid, sizes_valid = unravel(graphs_valid, one
 timenow=str(datetime.now())
 logging.basicConfig(filename='Test_sup.log', level=logging.DEBUG, filemode='a')
 logging.info('NEW EXPERIMENT ' + fingFolder +' -> start at '+ timenow) #C:',C,'; layers:',layer,'; epochs:',max_epochs
-logging.info('INFO: ' + str(A) + ' ' + str(M) + ' ' + str(C) + ' ' + str(layer) + ' ' + str(concatenate_fingerprints) + ' ' + str(svmC) + ' ' + str(gamma) + ' ' + str(max_epochs) + ' ' + str(Lprec))
+logging.info('INFO: ' + str(A) + ' ' + str(M) + ' ' + str(C) + ' ' + str(layer) + ' ' + str(concatenate_fingerprints) + ' ' + str(max_epochs) + ' ' + str(Lprec))
 
-# PERFORM TRAINING over the entire training set
+# PERFORM TRAINING over the entire training and validation set
 runs = 3
 for run in range(0, runs):
 
@@ -88,4 +88,6 @@ for run in range(0, runs):
         pickle.dump([unigram_train, unigram_valid, allStates_train, allStates_valid, adjacency_lists_train, adjacency_lists_valid, sizes_train, sizes_valid, Y_train, Y_valid], f)
         #pickle.dump(Info di architecture)
 
-fingerprints_to_svm_accuracy(newpath, C, Lprec, layer, runs, svmC, gamma, concatenate_fingerprints, name)
+svmCs=[100, 50, 25, 10, 5, 2, 1 ]
+gammas=[50, 25, 10, 5, 2, 1 ]
+fingerprints_to_svm_accuracy_SEARCH_BEST_HYPERPAR(newpath, C, Lprec, layer, runs, svmCs, gammas, concatenate_fingerprints, name)

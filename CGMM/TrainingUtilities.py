@@ -550,6 +550,55 @@ def compute_fingerprints(C, K, A, Lprec, adjacency_lists_train, X_train, Y_train
 
         lock.release()
 
+def fingerprints_to_svm_accuracy_SEARCH_BEST_HYPERPAR(path, C, Lprec, layer, runs, svmCs, gammas, concatenate_fingerprints, fingerprint_name):
+    '''
+    Load the stored fingerprint (see compute_fingerprints), computes the accuracy on it using a SVM with RBF kernel
+    and log information about average (over runs) training and validation accuracy and standard deviation.
+    Precondition: a logging file must have been opened
+    :param C: the size of the hidden states' alphabet
+    :param Lprec: an array with a subset of preceding layers to consider. For example, np.array([1,2,3])
+    :param layer: the layer associated to the fingerprint
+    :param runs: how many runs have been done for this particular configuration
+    :param svmCs: list of the RBF C parameter to try
+    :param gammas: list of the RBF gamma parameter to try
+    :param concatenate_fingerprints: the boolean decision associated to the fingerprint
+    :param fingerprint_name: the initial name of the fingerprint
+    :return:
+    '''
+    np.random.seed()
+
+    tr_runs = [0. for _ in range(0, runs)]
+    vl_runs = [0. for _ in range(0, runs)]
+
+    for svmC in svmCs:
+        for gamma in gammas:
+            for run in range(0, runs):
+                with open(path + fingerprint_name + '_' + str(run) + '_' + str(C) + '_' +
+                                str(layer) + '_' + str(Lprec) + '_' +
+                                str(concatenate_fingerprints) + '.cgmmOutput', 'rb') as f:
+                    [unigram_train, unigram_valid, allStates_train, allStates_valid, adjacency_lists_train,
+                    adjacency_lists_valid, sizes_train, sizes_valid, Y_train, Y_valid] = pickle.load(f)
+
+                    # SVC performs a AVA approach for multiclass classification
+                    clf = svm.SVC(C=svmC, kernel='rbf', gamma=gamma, shrinking=False)
+
+                    # Train on train set
+                    clf.fit(unigram_train, Y_train)
+
+                    # Compute train accuracy
+                    tr_runs[run] = compute_accuracy(clf.predict(unigram_train), Y_train)
+
+                    # Compute valid accuracy
+                    predictions_valid = clf.predict(unigram_valid)
+                    vl_runs[run] = compute_accuracy(predictions_valid, Y_valid)
+
+            tr_acc = np.average(tr_runs)
+            tr_std = np.std(tr_runs)
+            vl_acc = np.average(vl_runs)
+            vl_std = np.std(vl_runs)
+
+            log = fingerprint_name + ' RES_'+str(svmC)+'_'+str(gamma)+'->\t' + 'T:' + str(tr_acc) + '+' + str(tr_std) + ' V:' + str(vl_acc) + '+' + str(vl_std)#[:6][:5]
+            logging.info(log)
 
 def fingerprints_to_svm_accuracy(path, C, Lprec, layer, runs, svmC, gamma, concatenate_fingerprints, fingerprint_name):
     '''

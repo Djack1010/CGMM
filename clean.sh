@@ -19,6 +19,9 @@ for FDIR in $SCRIPTPATH/fingerprints/* ; do
     if [ -d $FDIR ]; then
         rm -r $FDIR
     fi
+    if [ "$(echo $FDIR | grep "vector_")" ]; then
+        rm $FDIR
+    fi
 done
 
 for LOGSFILE in $(ls $SCRIPTPATH/logsRun) ; do

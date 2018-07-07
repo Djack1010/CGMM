@@ -56,7 +56,7 @@ for svm in "${SVMCS[@]}"; do
             BV=$V
             BSV=$SV
         fi
-        if (( $(echo "($V+$SV) > $BVE" | bc -l) )); then
+        if (( $(echo "($V+$SV) > ($BVE+$BVSE)" | bc -l) )); then
             BsvmE=${svm}
             BgammaE=${gamma}
             BVE=$V

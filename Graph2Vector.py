@@ -10,7 +10,7 @@ parser.add_argument("--arcLabels", "-al", type=int, default=4, help="number of a
 parser.add_argument("--nodeLabels", "-nl", type=int, default=379, help="number of node labels (default xxx)")
 parser.add_argument("--dataPath", "-dp", default="./data/data_COMPLETE/", help="data path (./data/data_COMPLETE/)")
 parser.add_argument("-C", "--C", type=int, default=40, help="default 40")
-parser.add_argument("--layers", "-l", type=int, default=6, help="number of layers (default 6)")
+parser.add_argument("--layers", "-l", type=int, default=8, help="number of layers (default 8)")
 #parser.add_argument("-concatenate", "--concatenate", action='store_true', help="number of layers (default 6)")
 parser.add_argument("--epochs", "-e", type=int, default=20, help="number of epochs (default 15)")
 #parser.add_argument("-v", "--verbose", action="store_true", help="increase output verbosity")

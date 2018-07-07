@@ -11,7 +11,7 @@ function progrBar {
     COUNT=0
     #echo -ne ""\\r
     #echo -e "\n"
-    echo "$PAR out of $TOT - RUNNING $(jobs | grep "Running" | wc -l) - PHASE $(($LAYERIND+1))/$LARLENGHT"
+    echo "$PAR out of $TOT - RUNNING: $(jobs | grep "Running" | wc -l) - LAYER: ${LAYERSARRAY[$LAYERIND]}"
     echo -ne "["
     while [ "$TEMPPER" -gt "0" ]; do
         TEMPPER=$(($TEMPPER-2))
@@ -128,19 +128,20 @@ if [ "$MODE" == "k" ]; then
 
     #-----------------------------------
     #----------SET VARIABLE-------------
-    LAYERSARRAY=("2" "4" "6" "8" "10")
-    LARLENGHT=5
+    LAYERSARRAY=("2" "6" "8" "10")
+    LARLENGHT=4
     UPDATE=60
     #-----------------------------------
 
     LAYERIND=0
-    TOTJOBS=$(($KNUM*4))
+    TOTJOBS=$(($KNUM*$LARLENGHT))
+    INDJOBS=0
     IND=0
     while true; do
         if [ "$IND" -ge "$KNUM" ]; then
             while [ "$(jobs | grep "Running" )" ]; do
-                PARNOW=$(($IND-$(jobs | wc -l)))
-                progrBar $PARNOW $KNUM
+                PARNOW=$(($INDJOBS-$(jobs | wc -l)))
+                progrBar $PARNOW $TOTJOBS
                 sleep $UPDATE
             done
             $SCRIPTPATH/clean.sh -soft
@@ -155,11 +156,11 @@ if [ "$MODE" == "k" ]; then
             #echo "$IND out of $KNUM - JOBS RUNNING: $(jobs | wc -l)"
             $SCRIPTPATH/oneInstance.sh ${JOBSARRAY[$IND]} ${LAYERSARRAY[$LAYERIND]} $NL &
             IND=$(($IND+1))
-        
+            INDJOBS=$(($INDJOBS+1))
         else
             #echo "BUSY SITUATION - JOBS RUNNING: $(jobs | wc -l)"
-            PARNOW=$(($IND-$(jobs | wc -l)))
-            progrBar $PARNOW $KNUM
+            PARNOW=$(($INDJOBS-$(jobs | wc -l)))
+            progrBar $PARNOW $TOTJOBS
             sleep $UPDATE
         fi
     done

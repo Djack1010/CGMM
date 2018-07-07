@@ -13,6 +13,7 @@ parser.add_argument("--validDataPath", "-vdp", default="./Example_Data/", help="
 parser.add_argument("-C", "--C", type=int, default=40, help="default 40")
 parser.add_argument("--fingerprintsFolder", "-ff", default="f1", help="default f1")
 parser.add_argument("--layers", "-l", type=int, default=6, help="number of layers (default 6)")
+parser.add_argument("--runs", "-r", type=int, default=1, help="number of runs (default 1)")
 #parser.add_argument("-concatenate", "--concatenate", action='store_true', help="number of layers (default 6)")
 parser.add_argument("--epochs", "-e", type=int, default=15, help="number of epochs (default 15)")
 #parser.add_argument("-v", "--verbose", action="store_true", help="increase output verbosity")
@@ -61,7 +62,7 @@ logging.info('NEW EXPERIMENT ' + fingFolder +' -> start at '+ timenow) #C:',C,';
 logging.info('INFO: ' + str(A) + ' ' + str(M) + ' ' + str(C) + ' ' + str(layer) + ' ' + str(concatenate_fingerprints) + ' ' + str(max_epochs) + ' ' + str(Lprec))
 
 # PERFORM TRAINING over the entire training and validation set
-runs = 3
+runs = args.runs
 for run in range(0, runs):
 
     architecture = None

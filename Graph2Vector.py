@@ -12,7 +12,8 @@ parser.add_argument("--dataPath", "-dp", default="./data/data_COMPLETE/", help="
 parser.add_argument("-C", "--C", type=int, default=40, help="default 40")
 parser.add_argument("--layers", "-l", type=int, default=8, help="number of layers (default 8)")
 #parser.add_argument("-concatenate", "--concatenate", action='store_true', help="number of layers (default 6)")
-parser.add_argument("--epochs", "-e", type=int, default=20, help="number of epochs (default 15)")
+parser.add_argument("--epochs", "-e", type=int, default=20, help="number of epochs (default 20)")
+parser.add_argument("--name", "-n", default="NoNameSet", help="name of the output file (default NoNameSet)")
 #parser.add_argument("-v", "--verbose", action="store_true", help="increase output verbosity")
 args = parser.parse_args()
 
@@ -24,6 +25,8 @@ M = args.nodeLabels
 # Data Path
 DATA_PATH=args.dataPath
 #--------------------------
+
+name = args.name
 
 C = args.C
 layer = args.layers
@@ -59,7 +62,7 @@ with open('./fingerprints/temp.txt','w') as o:
     np.savetxt(o, unigram_train, fmt='%.6f',delimiter = ',')
 
 ind=0
-with open('./fingerprints/vector_'+str(C)+ '_' +str(layer)+'.txt','w') as o:
+with open('./fingerprints/vector_'+str(C)+ '_' +str(layer)+ '_' +str(name)+'.txt','w') as o:
     with open('./fingerprints/temp.txt','r') as t:
         for line in t:
             o.write(line.rstrip('\n') + ',' + str(Y_train[ind]) + '\n')

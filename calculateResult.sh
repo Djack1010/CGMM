@@ -45,18 +45,22 @@ for svm in "${SVMCS[@]}"; do
             #fi    
         done < $SCRIPTPATH/RESULTS/temp.log
         rm $SCRIPTPATH/RESULTS/temp.log
+        if [ "$N" == "0" ]; then
+            echo "ERROR, no lines found and N=0, svm $svm and gamma $gamma..." >> $SCRIPTPATH/RESULTS/Test_sup_$TESTNUM.log
+            continue
+        fi
         T=$(bc <<< "scale = 4; ${T} / ${N} ")        
         ST=$(bc <<< "scale = 2; ${ST} / ${N} ")        
         V=$(bc <<< "scale = 4; ${V} / ${N} ")        
         SV=$(bc <<< "scale = 2; ${SV} / ${N} ") 
         echo "FINAL RESULT_${svm}_${gamma}-> T:$T+$ST V:$V+$SV" >> $SCRIPTPATH/RESULTS/Test_sup_$TESTNUM.log
-        if (( $(echo "$V > $BV" | bc -l) )); then
+        if (( $(echo "$V >= $BV" | bc -l) )); then
             Bsvm=${svm}
             Bgamma=${gamma}
             BV=$V
             BSV=$SV
         fi
-        if (( $(echo "($V+$SV) > ($BVE+$BVSE)" | bc -l) )); then
+        if (( $(echo "($V+$SV) >= ($BVE+$BSVE)" | bc -l) )); then
             BsvmE=${svm}
             BgammaE=${gamma}
             BVE=$V

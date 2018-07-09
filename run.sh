@@ -33,9 +33,13 @@ function progrBar {
 SCRIPTPATH=$PWD
 
 function UsageInfo {
-    echo "USAGE: [ -kfolder KFOLDER ] [ -max MAX ]"
-    echo -e "\t-kfolder KFOLDER\t\tSplit dataset in K folder and run a K-folder validation"
-    echo -e "\t-max MAX\t\t\tSet maximum number of running parallel instances"
+    echo "USAGE: [ -kfolder KFOLDER ] [ -max MAX ] [ -nl NODELABELS ] [ -l L1:L2:...:LN ] [ -up UPDATE ]"
+    echo -e "\t-kfolder KFOLDER\tSplit dataset in K folder and run a K-folder validation"
+    echo -e "\t-max MAX\t\tSet maximum number of running parallel instances (DEFAULT 2)"
+    echo -e "\t-nl NODELABELS\t\tSet number of node labels"
+    echo -e "\t-l L1:L2:...:LN\t\tSet list of layers separated by semicolons (DEFAULT 4:6:8:10)"
+    echo -e "\t-up UPDATE\t\tSet frequency updates for running process, in seconds (DEFAULT 60)"
+    
     exit
 }
 
@@ -69,6 +73,22 @@ else
                 UsageInfo
             else
                 NL=${myArray[$n]}
+                n=$(($n+1))
+            fi
+        elif [[ "${myArray[$n]}" == "-l" ]]; then
+            n=$(($n+1))
+            if [ -z "${myArray[$n]}" ]; then
+                UsageInfo
+            else
+                LAYERSARRAY=($(echo ${myArray[$n]} | sed 's/:/ /g' ))
+                n=$(($n+1))
+            fi
+        elif [[ "${myArray[$n]}" == "-up" ]]; then
+            n=$(($n+1))
+            if [ -z "${myArray[$n]}" ]; then
+                UsageInfo
+            else
+                UPDATE=${myArray[$n]}
                 n=$(($n+1))
             fi
         elif [[ "${myArray[$n]}" == "-help" ]]; then
@@ -126,13 +146,15 @@ if [ "$MODE" == "k" ]; then
     fi
     mkdir -p $SCRIPTPATH/logsRun
 
-    #-----------------------------------
-    #----------SET VARIABLE-------------
-    LAYERSARRAY=("2" "6" "8" "10")
-    LARLENGHT=4
-    UPDATE=60
-    #-----------------------------------
-
+    if [ "${#LAYERSARRAY[@]}" == "0" ]; then
+        LAYERSARRAY=("4" "6" "8" "10")
+    fi
+    LARLENGHT=${#LAYERSARRAY[@]}
+    
+    if [ -z "$UPDATE" ]; then
+        UPDATE=60
+    fi
+    
     LAYERIND=0
     TOTJOBS=$(($KNUM*$LARLENGHT))
     INDJOBS=0

@@ -20,7 +20,7 @@ UPDATE=120
 
 echo ""
 
-while [ "$(ps aux | grep "./run.sh -kfolder" | wc -l )" -gt "1" ]; do
+while [ "$(ps aux | grep "./run.sh -kfolder" | wc -l )" -gt "1" ] || [ "$(ps aux | grep "./run.sh -graph2vec" | wc -l )" -gt "1" ]; do
     for i in 11 12 13 14 15 16 17 18 19 20; do
         MEMUSAGE=$(free | grep "Mem" | cut -d' ' -f$i)
         if [ "$MEMUSAGE" ]; then

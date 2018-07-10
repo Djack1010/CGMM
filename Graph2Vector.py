@@ -62,7 +62,7 @@ with open('./fingerprints/temp.txt','w') as o:
     np.savetxt(o, unigram_train, fmt='%.6f',delimiter = ',')
 
 ind=0
-with open('./fingerprints/vector_'+str(C)+ '_' +str(layer)+ '_' +str(name)+'.txt','w') as o:
+with open('./RESULTS/vector_'+str(C)+ '_' +str(layer)+ '_' +str(name)+'.txt','w') as o:
     with open('./fingerprints/temp.txt','r') as t:
         for line in t:
             o.write(line.rstrip('\n') + ',' + str(Y_train[ind]) + '\n')

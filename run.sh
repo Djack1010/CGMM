@@ -81,7 +81,7 @@ else
             if [ -z "${myArray[$n]}" ]; then
                 UsageInfo
             else
-                $CVALUE=${myArray[$n]}
+                CVALUE=${myArray[$n]}
                 n=$(($n+1))
             fi
         elif [[ "${myArray[$n]}" == "-nl" ]]; then

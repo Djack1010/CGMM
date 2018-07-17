@@ -37,10 +37,11 @@ function progrBar {
 SCRIPTPATH=$PWD
 
 function UsageInfo {
-    echo -e "USAGE: -kfolder KFOLDER | -graph2vec \n[ -max MAX ] [ -nl NODELABELS ] [ -l L1:L2:...:LN ] [ -up UPDATE ] [ -n NAME ]"
+    echo -e "USAGE: -kfolder KFOLDER | -graph2vec \n[ -max MAX ] [ -nl NODELABELS ] [ -l L1:L2:...:LN ] [ -up UPDATE ] [ -n NAME ] [ -dp D_PATH ]"
     echo -e "\t-kfolder KFOLDER\tSplit dataset in K folder and run a K-folder validation"
     echo -e "\t-max MAX\t\tMAX number of running parallel instances (K-fold ONLY, DEFAULT 2)"
     echo -e "\t-n NAME\t\tSet a name for the output vector (graph2vec ONLY)"
+    echo -e "\t-dp D_PATH\t\tSet the data path (graph2vec ONLY)"
     echo -e "\t-nl NODELABELS\t\tSet number of node labels"
     echo -e "\t-l L1:L2:...:LN\t\tSet list of layers separated by semicolons (DEFAULT 4:6:8:10)"
      echo -e "\t-c C\t\tSet C value (DEFAULT 20)"
@@ -74,6 +75,14 @@ else
                 UsageInfo
             else
                 MAX=${myArray[$n]}
+                n=$(($n+1))
+            fi
+        elif [[ "${myArray[$n]}" == "-dp" ]]; then
+            n=$(($n+1))
+            if [ -z "${myArray[$n]}" ]; then
+                UsageInfo
+            else
+                DATAPATH="-dp ${myArray[$n]}"
                 n=$(($n+1))
             fi
         elif [[ "${myArray[$n]}" == "-c" ]]; then
@@ -235,7 +244,7 @@ elif [ "$MODE" == "g" ]; then
     for (( c=0; c<$LARLENGHT; c++ )); do
         #progrBar $c $LARLENGHT
         echo "Vectorization $c out of $(($LARLENGHT-1)) - layers ${LAYERSARRAY[$c]} - $(date)"
-        python3 Graph2Vector.py -n $NAME -nl $NL -l ${LAYERSARRAY[$c]} -C $CVALUE 2>> $SCRIPTPATH/logsRun/errorsLay${LAYERSARRAY[$c]} 1>> $SCRIPTPATH/logsRun/logLay${LAYERSARRAY[$c]}
+        python3 Graph2Vector.py -n $NAME -nl $NL -l ${LAYERSARRAY[$c]} -C $CVALUE $DATAPATH 2>> $SCRIPTPATH/logsRun/errorsLay${LAYERSARRAY[$c]} 1>> $SCRIPTPATH/logsRun/logLay${LAYERSARRAY[$c]}
         if [ "$(cat $SCRIPTPATH/logsRun/errorsLay${LAYERSARRAY[$c]})" ]; then
             echo -e "\nERROR! check $SCRIPTPATH/logsRun/errorsLay${LAYERSARRAY[$c]}, exiting..."
             exit

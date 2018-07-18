@@ -243,7 +243,7 @@ elif [ "$MODE" == "g" ]; then
     
     for (( c=0; c<$LARLENGHT; c++ )); do
         #progrBar $c $LARLENGHT
-        echo "Vectorization $c out of $(($LARLENGHT-1)) - layers ${LAYERSARRAY[$c]} - $(date)"
+        echo "Vectorization $c out of $(($LARLENGHT-1)) - layers ${LAYERSARRAY[$c]} - C: $CVALUE - $(date)"
         python3 Graph2Vector.py -n $NAME -nl $NL -l ${LAYERSARRAY[$c]} -C $CVALUE $DATAPATH 2>> $SCRIPTPATH/logsRun/errorsLay${LAYERSARRAY[$c]} 1>> $SCRIPTPATH/logsRun/logLay${LAYERSARRAY[$c]}
         if [ "$(cat $SCRIPTPATH/logsRun/errorsLay${LAYERSARRAY[$c]})" ]; then
             echo -e "\nERROR! check $SCRIPTPATH/logsRun/errorsLay${LAYERSARRAY[$c]}, exiting..."

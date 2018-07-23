@@ -274,7 +274,7 @@ elif [ "$MODE" == "t" ]; then
         #progrBar $c $LARLENGHT
         echo "Vectorization $c out of $(($LARLENGHT-1)) - layers ${LAYERSARRAY[$c]} - C: $CVALUE - $(date)"
         python3 Graph2VectorTF.py -n $NAME -nl $NL -l ${LAYERSARRAY[$c]} -C $CVALUE $DATAPATH 2>> $SCRIPTPATH/logsRun/errorsLay${LAYERSARRAY[$c]} 1>> $SCRIPTPATH/logsRun/logLay${LAYERSARRAY[$c]}
-        if [ "$(cat $SCRIPTPATH/logsRun/errorsLay${LAYERSARRAY[$c]})" ]; then
+        if [ "$(cat $SCRIPTPATH/logsRun/errorsLay${LAYERSARRAY[$c]}) | wc -l)" -gt 1 ]; then
             echo -e "\nERROR! check $SCRIPTPATH/logsRun/errorsLay${LAYERSARRAY[$c]}, exiting..."
             exit
         else

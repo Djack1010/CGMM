@@ -17,14 +17,12 @@ parser.add_argument("--name", "-n", default="NoNameSet", help="name of the outpu
 #parser.add_argument("-v", "--verbose", action="store_true", help="increase output verbosity")
 args = parser.parse_args()
 
-#------VARIABLE TO SET-----
 # Number of arc labels
 A = args.arcLabels 
 # Number of node labels
 M = args.nodeLabels         
 # Data Path
 DATA_PATH=args.dataPath
-#--------------------------
 
 name = args.name
 

@@ -19,7 +19,7 @@ else
 fi
 
 function usageInfo {
-    echo -e "\033[4A"
+    echo -e "\033[5A"
     CPUUSAGE=$(top -b -n 1 -u $USER | awk 'NR>7 { sum += $9; } END { print sum; }' )
     MEMUSAGE=$(top -b -n 1 -u $USER | awk 'NR>7 { sum += $10; } END { print sum; }')
     NMAX=0
@@ -40,12 +40,13 @@ function usageInfo {
     if [ "$NMAX" == "1" ]; then
         echo "CPU: $CPUMAXUS% MEM: $MEMMAXUS% at $MAXDATE" >> ~/logs/maxUsageLog.txt
     fi
+    echo "See files '~/logs/usageLog.txt' and '~/logs/MAXusageLog.txt' for more info"
 }
 
 CPUMAXUS=0
 MEMMAXUS=0
 MAXDATE=$(date)
-echo -e "\n\n"
+echo -e "\n\n\n"
 
 while true; do
     usageInfo

@@ -15,7 +15,7 @@ function upMemUsage {
         echo "MAX MEM USAGE LIMIT REACHED --> MEM: $MEMUSAGE% > $MAXMEM% at $(date)"
         echo "MAX MEM USAGE LIMIT REACHED --> MEM: $MEMUSAGE% > $MAXMEM% at $(date)" >> ~/logs/usageLog.txt
         if [ "$PIDMON" ]; then
-            kill -15 $PIDMON
+            kill -15 -- -$PIDMON
             echo "MAX MEM USAGE LIMIT REACHED --> killing $PIDMON at $(date)"
             echo "MAX MEM USAGE LIMIT REACHED --> killing $PIDMON at $(date)" >> ~/logs/usageLog.txt
             PIDMON=""

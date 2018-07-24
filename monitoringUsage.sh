@@ -3,7 +3,7 @@ SCRIPTPATH="$( cd "$(dirname "$0")" ; pwd -P )"
 PIDRUN=$$
 
 function UsageInfo {
-    echo -e "USAGE: [ -update UP ] [ -user USER ] [ -pid PID ] [ -max MAXMEM ] [ -help ]"
+    echo -e "USAGE: -pid PID [ -update UP ] [ -user USER ] [ -max MAXMEM ] [ -help ]"
     exit
 }
 
@@ -103,12 +103,14 @@ if [ "$PIDMON" ]; then
     if [ -z "$MAXMEM" ]; then
         MAXMEM=50
     fi
-    echo "MONITORING PID $PIDMON and MAXMEM usage set to $MAXMEM"
-else
-    if [ -z "$MAXMEM" ]; then
-        MAXMEM=99
+    if [ -z "$(top -b -n 1 -u $USER | grep "$PIDMON $USER")" ]; then
+        echo "ERROR, PID $PIDMON is not running, exiting..."
+    else
+        echo "MONITORING PID $PIDMON and MAXMEM usage set to $MAXMEM"
     fi
-    echo "MAXMEM set to $MAXMEM"
+else
+    echo "ERROR, set PID to monitor, exiting..."
+    exit
 fi
 
 CPUMAXUS=0
@@ -116,7 +118,7 @@ MEMMAXUS=0
 MAXDATE=$(date)
 #echo -e "\n\n\n"
 
-while true; do
+while [ "$PIDMON" ] && [ "$(top -b -n 1 -u $USER | grep "$PIDMON $USER")" ]; do
     upMemUsage
     sleep $UPDATE
     echo -e "\033[5A"

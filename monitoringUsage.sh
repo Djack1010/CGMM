@@ -7,7 +7,7 @@ rm -f ~/logs/usageLog.txt
 rm -f ~/logs/maxUsageLog.txt
 
 if [ -z "$1" ]; then
-    UPDATE=10
+    UPDATE=120
 else
     UPDATE=$1
 fi

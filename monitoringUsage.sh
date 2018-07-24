@@ -39,7 +39,6 @@ function upMemUsage {
         echo "CPU: $CPUMAXUS% MEM: $MEMMAXUS% at $MAXDATE" >> ~/logs/maxUsageLog.txt
     fi
     echo "See files '~/logs/usageLog.txt' and '~/logs/MAXusageLog.txt' for more info"
-    echo -e "\033[5A"
 }
 
 
@@ -120,4 +119,5 @@ MAXDATE=$(date)
 while true; do
     upMemUsage
     sleep $UPDATE
+    echo -e "\033[5A"
 done

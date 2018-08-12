@@ -34,10 +34,10 @@ function progrBar {
     echo -e "\033[2A"
 }
 
-SCRIPTPATH=$PWD
+SCRIPTPATH="$( cd "$(dirname "$0")" ; pwd -P )"
 
 function UsageInfo {
-    echo -e "USAGE: -kfolder KFOLDER | -graph2vecST | -graph2vecTF \n[ -max MAX ] [ -nl NODELABELS ] [ -l L1:L2:...:LN ] [ -up UPDATE ] [ -n NAME ] [ -dp D_PATH ]"
+    echo -e "USAGE: -kfolder KFOLDER | -graph2vecST | -graph2vecTF | -modelAssessment |-loadModelAndVec\n[ -max MAX ] [ -nl NODELABELS ] [ -l L1:L2:...:LN ] [ -up UPDATE ] [ -n NAME ] [ -dp D_PATH ]"
     echo -e "\t-kfolder KFOLDER\tSplit dataset in K folder and run a K-folder validation"
     echo -e "\t-graph2vecST \t\tConvert graphs to vectors, standard mode"
     echo -e "\t-graph2vecTF \t\tConvert graphs to vectors, tensorflow mode"
@@ -73,6 +73,12 @@ else
             n=$(($n+1))
         elif [[ "${myArray[$n]}" == "-graph2vecTF" ]]; then
             MODE="t"
+            n=$(($n+1))
+        elif [[ "${myArray[$n]}" == "-modelAssessment" ]]; then
+            MODE="m"
+            n=$(($n+1))
+        elif [[ "${myArray[$n]}" == "-loadModelAndVec" ]]; then
+            MODE="l"
             n=$(($n+1))
         elif [[ "${myArray[$n]}" == "-max" ]]; then
             n=$(($n+1))
@@ -249,7 +255,7 @@ elif [ "$MODE" == "g" ]; then
     for (( c=0; c<$LARLENGHT; c++ )); do
         #progrBar $c $LARLENGHT
         echo "Vectorization $c out of $(($LARLENGHT-1)) - layers ${LAYERSARRAY[$c]} - C: $CVALUE - $(date)"
-        python3 Graph2Vector.py -n $NAME -nl $NL -l ${LAYERSARRAY[$c]} -C $CVALUE $DATAPATH 2>> $SCRIPTPATH/logsRun/errorsLay${LAYERSARRAY[$c]} 1>> $SCRIPTPATH/logsRun/logLay${LAYERSARRAY[$c]}
+        python3 $SCRIPTPATH/Graph2Vector.py -n $NAME -nl $NL -l ${LAYERSARRAY[$c]} -C $CVALUE $DATAPATH 2>> $SCRIPTPATH/logsRun/errorsLay${LAYERSARRAY[$c]} 1>> $SCRIPTPATH/logsRun/logLay${LAYERSARRAY[$c]}
         if [ "$(cat $SCRIPTPATH/logsRun/errorsLay${LAYERSARRAY[$c]})" ]; then
             echo -e "\nERROR! check $SCRIPTPATH/logsRun/errorsLay${LAYERSARRAY[$c]}, exiting..."
             exit
@@ -272,7 +278,73 @@ elif [ "$MODE" == "t" ]; then
     for (( c=0; c<$LARLENGHT; c++ )); do
         #progrBar $c $LARLENGHT
         echo "Vectorization $c out of $(($LARLENGHT-1)) - layers ${LAYERSARRAY[$c]} - C: $CVALUE - $(date)"
-        python3 Graph2VectorTF.py -n $NAME -nl $NL -l ${LAYERSARRAY[$c]} -C $CVALUE $DATAPATH 2>> $SCRIPTPATH/logsRun/errorsLay${LAYERSARRAY[$c]} 1>> $SCRIPTPATH/logsRun/logLay${LAYERSARRAY[$c]}
+        python3 $SCRIPTPATH/Graph2VectorTF.py -n $NAME -nl $NL -l ${LAYERSARRAY[$c]} -C $CVALUE $DATAPATH 2>> $SCRIPTPATH/logsRun/errorsLay${LAYERSARRAY[$c]} 1>> $SCRIPTPATH/logsRun/logLay${LAYERSARRAY[$c]}
+        if [ "$(cat $SCRIPTPATH/logsRun/errorsLay${LAYERSARRAY[$c]})" ]; then
+            if [ "$(cat $SCRIPTPATH/logsRun/errorsLay${LAYERSARRAY[$c]} | wc -l)" == "1" ] && [ "$(cat $SCRIPTPATH/logsRun/errorsLay${LAYERSARRAY[$c]} | grep "TensorFlow binary was not compiled to use: AVX2 FMA")" ]; then 
+                #Known warning, delete file and continue computation
+                rm -f $SCRIPTPATH/logsRun/errorsLay${LAYERSARRAY[$c]}
+            else
+                echo -e "\nERROR! check $SCRIPTPATH/logsRun/errorsLay${LAYERSARRAY[$c]}, exiting..."
+                exit
+            fi
+        fi
+        python3 $SCRIPTPATH/MVectorization.py -n $NAME -nl $NL -l ${LAYERSARRAY[$c]} -C $CVALUE $DATAPATH 2>> $SCRIPTPATH/logsRun/errorsLay${LAYERSARRAY[$c]} 1>> $SCRIPTPATH/logsRun/logLay${LAYERSARRAY[$c]}
+        if [ "$(cat $SCRIPTPATH/logsRun/errorsLay${LAYERSARRAY[$c]})" ]; then
+            if [ "$(cat $SCRIPTPATH/logsRun/errorsLay${LAYERSARRAY[$c]} | wc -l)" == "1" ] && [ "$(cat $SCRIPTPATH/logsRun/errorsLay${LAYERSARRAY[$c]} | grep "TensorFlow binary was not compiled to use: AVX2 FMA")" ]; then 
+                #Known warning, delete file and continue computation
+                rm -f $SCRIPTPATH/logsRun/errorsLay${LAYERSARRAY[$c]}
+            else
+                echo -e "\nERROR! check $SCRIPTPATH/logsRun/errorsLay${LAYERSARRAY[$c]}, exiting..."
+                exit
+            fi
+        fi
+        rm -f $SCRIPTPATH/logsRun/errorsLay${LAYERSARRAY[$c]}
+    done
+elif [ "$MODE" == "m" ]; then
+    PIDRUN=$$
+    mkdir -p $SCRIPTPATH/logsRun
+    mkdir -p $SCRIPTPATH/RESULTS
+    if [ -z "$NAME" ]; then
+        echo "ERROR, set -n parameter, exiting..."
+        exit
+    fi
+    if [ "${#LAYERSARRAY[@]}" == "0" ]; then
+        LAYERSARRAY=("2" "4" "6" "8" "10")
+    fi
+    LARLENGHT=${#LAYERSARRAY[@]}
+    
+    for (( c=0; c<$LARLENGHT; c++ )); do
+        #progrBar $c $LARLENGHT
+        echo "Vectorization $c out of $(($LARLENGHT-1)) - layers ${LAYERSARRAY[$c]} - C: $CVALUE - $(date)"
+        python3 $SCRIPTPATH/MAssessment.py -n $NAME -nl $NL -l ${LAYERSARRAY[$c]} -C $CVALUE $DATAPATH 2>> $SCRIPTPATH/logsRun/errorsLay${LAYERSARRAY[$c]} 1>> $SCRIPTPATH/logsRun/logLay${LAYERSARRAY[$c]}
+        if [ "$(cat $SCRIPTPATH/logsRun/errorsLay${LAYERSARRAY[$c]})" ]; then
+            if [ "$(cat $SCRIPTPATH/logsRun/errorsLay${LAYERSARRAY[$c]} | wc -l)" == "1" ] && [ "$(cat $SCRIPTPATH/logsRun/errorsLay${LAYERSARRAY[$c]} | grep "TensorFlow binary was not compiled to use: AVX2 FMA")" ]; then 
+                #Known warning, delete file and continue computation
+                rm -f $SCRIPTPATH/logsRun/errorsLay${LAYERSARRAY[$c]}
+            else
+                echo -e "\nERROR! check $SCRIPTPATH/logsRun/errorsLay${LAYERSARRAY[$c]}, exiting..."
+                exit
+            fi
+        fi
+        rm -f $SCRIPTPATH/logsRun/errorsLay${LAYERSARRAY[$c]}
+    done
+elif [ "$MODE" == "l" ]; then
+    PIDRUN=$$
+    mkdir -p $SCRIPTPATH/logsRun
+    mkdir -p $SCRIPTPATH/RESULTS
+    if [ -z "$NAME" ]; then
+        echo "ERROR, set -n parameter, exiting..."
+        exit
+    fi
+    if [ "${#LAYERSARRAY[@]}" == "0" ]; then
+        LAYERSARRAY=("2" "4" "6" "8" "10")
+    fi
+    LARLENGHT=${#LAYERSARRAY[@]}
+    
+    for (( c=0; c<$LARLENGHT; c++ )); do
+        #progrBar $c $LARLENGHT
+        echo "Vectorization $c out of $(($LARLENGHT-1)) - layers ${LAYERSARRAY[$c]} - C: $CVALUE - $(date)"
+        python3 $SCRIPTPATH/MVectorization.py -n $NAME -nl $NL -l ${LAYERSARRAY[$c]} -C $CVALUE $DATAPATH 2>> $SCRIPTPATH/logsRun/errorsLay${LAYERSARRAY[$c]} 1>> $SCRIPTPATH/logsRun/logLay${LAYERSARRAY[$c]}
         if [ "$(cat $SCRIPTPATH/logsRun/errorsLay${LAYERSARRAY[$c]})" ]; then
             if [ "$(cat $SCRIPTPATH/logsRun/errorsLay${LAYERSARRAY[$c]} | wc -l)" == "1" ] && [ "$(cat $SCRIPTPATH/logsRun/errorsLay${LAYERSARRAY[$c]} | grep "TensorFlow binary was not compiled to use: AVX2 FMA")" ]; then 
                 #Known warning, delete file and continue computation

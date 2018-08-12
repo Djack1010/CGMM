@@ -1,5 +1,5 @@
 #!/bin/bash
-SCRIPTPATH=$PWD
+SCRIPTPATH="$( cd "$(dirname "$0")" ; pwd -P )"
 
 if [ "$1" == "-soft" ]; then
     SOFT="SET"

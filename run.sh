@@ -288,17 +288,6 @@ elif [ "$MODE" == "t" ]; then
                 exit
             fi
         fi
-        python3 $SCRIPTPATH/MVectorization.py -n $NAME -nl $NL -l ${LAYERSARRAY[$c]} -C $CVALUE $DATAPATH 2>> $SCRIPTPATH/logsRun/errorsLay${LAYERSARRAY[$c]} 1>> $SCRIPTPATH/logsRun/logLay${LAYERSARRAY[$c]}
-        if [ "$(cat $SCRIPTPATH/logsRun/errorsLay${LAYERSARRAY[$c]})" ]; then
-            if [ "$(cat $SCRIPTPATH/logsRun/errorsLay${LAYERSARRAY[$c]} | wc -l)" == "1" ] && [ "$(cat $SCRIPTPATH/logsRun/errorsLay${LAYERSARRAY[$c]} | grep "TensorFlow binary was not compiled to use: AVX2 FMA")" ]; then 
-                #Known warning, delete file and continue computation
-                rm -f $SCRIPTPATH/logsRun/errorsLay${LAYERSARRAY[$c]}
-            else
-                echo -e "\nERROR! check $SCRIPTPATH/logsRun/errorsLay${LAYERSARRAY[$c]}, exiting..."
-                exit
-            fi
-        fi
-        rm -f $SCRIPTPATH/logsRun/errorsLay${LAYERSARRAY[$c]}
     done
 elif [ "$MODE" == "m" ]; then
     PIDRUN=$$

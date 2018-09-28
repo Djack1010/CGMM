@@ -8,8 +8,3 @@ __pycache__/
 
 #log
 .log
-
-#folder for stats
-checkpoints/
-saved_statistics/
-saved_unigrams/

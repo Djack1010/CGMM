@@ -1,5 +1,8 @@
 # Ignore everything in this directory
 *
 
-# Except this file
+# Except these files
+!DATASET_40_8_SeTNull4LightAllTF.txt
+!vector_40_8_SeTNull4lightAll.txt
 !.gitignore
+!selectMethods.sh

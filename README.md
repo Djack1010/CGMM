@@ -7,8 +7,12 @@ CGMM is a generative approach to learning contexts in graphs. It combines inform
 We hope that the exploitation of the proposed framework, which can be extended in many directions, can contribute to the extensive use of both generative and discriminative approaches to the adaptive processing of structured data.
 
 ## This repo
-The library includes data and scripts to reproduce the tree/graph classification experiments reported in the paper describing the method.
+This repo is forked by the repository of @diningphil (https://github.com/diningphil/CGMM). Their code was used for vectorizing and training models by the repository https://github.com/Djack1010/GrapPa.
 
-This research software is provided as is. If you happen to use or modify this code, please remember to cite the foundation papers:
+If you happen to use or modify this code, please remember to cite the foundation papers:
 
 *Bacciu Davide, Errica Federico, Micheli Alessio: Contextual Graph Markov Model: A Deep and Generative Approach to Graph Processing. To Appear in the Proceedings of the 35th International Conference on Machine Learning (ICML 2018), Forthcoming.*
+
+and the authors of this repository:
+
+* **Giacomo Iadarola** - *contributor* - [Djack1010](https://github.com/Djack1010)

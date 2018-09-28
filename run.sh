@@ -37,7 +37,8 @@ function progrBar {
 SCRIPTPATH="$( cd "$(dirname "$0")" ; pwd -P )"
 
 function UsageInfo {
-    echo -e "USAGE: -kfolder KFOLDER | -graph2vecST | -graph2vecTF | -modelAssessment |-loadModelAndVec\n[ -max MAX ] [ -nl NODELABELS ] [ -l L1:L2:...:LN ] [ -up UPDATE ] [ -n NAME ] [ -dp D_PATH ]"
+    echo -e "USAGE: -kfolder KFOLDER | -graph2vecST | -graph2vecTF | -modelAssessment | -replicateTest"
+    echo -e "MORE USAGE: -loadModelAndVec\n[ -max MAX ] [ -nl NODELABELS ] [ -l L1:L2:...:LN ] [ -up UPDATE ] [ -n NAME ] [ -dp D_PATH ]"
     echo -e "\t-kfolder KFOLDER\tSplit dataset in K folder and run a K-folder validation"
     echo -e "\t-graph2vecST \t\tConvert graphs to vectors, standard mode"
     echo -e "\t-graph2vecTF \t\tConvert graphs to vectors, tensorflow mode"
@@ -71,6 +72,9 @@ else
         elif [[ "${myArray[$n]}" == "-graph2vecST" ]]; then
             MODE="g"
             n=$(($n+1))
+        elif [[ "${myArray[$n]}" == "-replicateTest" ]]; then
+            MODE="r"
+            n=$(($n+1))
         elif [[ "${myArray[$n]}" == "-graph2vecTF" ]]; then
             MODE="t"
             n=$(($n+1))
@@ -94,6 +98,14 @@ else
                 UsageInfo
             else
                 DATAPATH="-dp ${myArray[$n]}"
+                n=$(($n+1))
+            fi
+        elif [[ "${myArray[$n]}" == "-bs" ]]; then
+            n=$(($n+1))
+            if [ -z "${myArray[$n]}" ]; then
+                UsageInfo
+            else
+                BATCH_SIZE="-bs ${myArray[$n]}"
                 n=$(($n+1))
             fi
         elif [[ "${myArray[$n]}" == "-c" ]]; then
@@ -144,7 +156,7 @@ else
     done
 fi
 
-if [ -z "$NL" ]; then
+if [ -z "$NL" ] &&  [ "$MODE" != "r" ]; then
     echo "ERROR, set -nl parameter, exiting..."
     exit
 fi
@@ -332,8 +344,8 @@ elif [ "$MODE" == "l" ]; then
     
     for (( c=0; c<$LARLENGHT; c++ )); do
         #progrBar $c $LARLENGHT
-        echo "Vectorization $c out of $(($LARLENGHT-1)) - layers ${LAYERSARRAY[$c]} - C: $CVALUE - $(date)"
-        python3 $SCRIPTPATH/MVectorization.py -n $NAME -nl $NL -l ${LAYERSARRAY[$c]} -C $CVALUE $DATAPATH 2>> $SCRIPTPATH/logsRun/errorsLay${LAYERSARRAY[$c]} 1>> $SCRIPTPATH/logsRun/logLay${LAYERSARRAY[$c]}
+        echo "Vectorization $c out of $(($LARLENGHT-1)) - layers ${LAYERSARRAY[$c]} - C: $CVALUE - $BATCH_SIZE - $(date)"
+        python3 $SCRIPTPATH/MVectorization.py -n $NAME -nl $NL -l ${LAYERSARRAY[$c]} -C $CVALUE $BATCH_SIZE $DATAPATH 2>> $SCRIPTPATH/logsRun/errorsLay${LAYERSARRAY[$c]} 1>> $SCRIPTPATH/logsRun/logLay${LAYERSARRAY[$c]}
         if [ "$(cat $SCRIPTPATH/logsRun/errorsLay${LAYERSARRAY[$c]})" ]; then
             if [ "$(cat $SCRIPTPATH/logsRun/errorsLay${LAYERSARRAY[$c]} | wc -l)" == "1" ] && [ "$(cat $SCRIPTPATH/logsRun/errorsLay${LAYERSARRAY[$c]} | grep "TensorFlow binary was not compiled to use: AVX2 FMA")" ]; then 
                 #Known warning, delete file and continue computation
@@ -345,6 +357,16 @@ elif [ "$MODE" == "l" ]; then
         fi
         rm -f $SCRIPTPATH/logsRun/errorsLay${LAYERSARRAY[$c]}
     done
+elif [ "$MODE" == "r" ]; then
+    if [ ! -f  $SCRIPTPATH/RESULTS/DATASET_40_8_SeTNull4LightAllTF.txt ]; then
+        echo "TRAINING DATASET not found in /RESULTS, exiting..."
+        exit
+    elif [ ! -f  $SCRIPTPATH/RESULTS/vector_40_8_SeTNull4lightAll.txt ]; then
+        echo "TEST DATASET not found in /RESULTS, exiting..."
+        exit
+    fi
+    python3 $SCRIPTPATH/generateResults.py
+    $SCRIPTPATH/RESULTS/selectMethods.sh
 fi
 
 echo -e "\n\nENDING run.sh SCRIPT"

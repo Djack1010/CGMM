@@ -15,7 +15,7 @@ def printOverwrite(toPrint):
 
 #---VARIABLE TO SET---
 batch_size=128 #256 #128
-epochs=40
+epochs=50
 #---------------------
 
 print("Loading data...",end="",flush=True)
@@ -26,14 +26,12 @@ print("DONE! Vector size: ",data.shape)
 #x_train = np.concatenate((kfold[0], kfold[1]))
 
 model = Sequential()
-model.add(Dense(64, input_dim=data.shape[1]-1, activation='relu'))
+model.add(Dense(512, input_dim=data.shape[1]-1, activation='relu'))
 model.add(Dropout(0.5))
-model.add(Dense(64, activation='relu'))
+model.add(Dense(512, activation='relu'))
 model.add(Dropout(0.5))
 model.add(Dense(1, activation='sigmoid'))
 
-final_loss=0
-final_acc=0
 model.compile(loss='binary_crossentropy',
             optimizer='rmsprop',
             metrics=['accuracy'])

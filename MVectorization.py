@@ -16,6 +16,7 @@ parser.add_argument("--layers", "-l", type=int, default=8, help="number of layer
 #parser.add_argument("-concatenate", "--concatenate", action='store_true', help="number of layers (default 6)")
 parser.add_argument("--epochs", "-e", type=int, default=20, help="number of epochs (default 20)")
 parser.add_argument("--name", "-n", default="NoNameSet", help="name of the output file (default NoNameSet)")
+parser.add_argument("--batchSize", "-bs", type=int, default=2000, help="batch size, has to be < number of vertixes (default 2000)")
 #parser.add_argument("-v", "--verbose", action="store_true", help="increase output verbosity")
 args = parser.parse_args()
 
@@ -25,6 +26,7 @@ A = args.arcLabels
 M = args.nodeLabels         
 # Data Path
 DATA_PATH=args.dataPath
+batch_size =args.batchSize
 
 name = args.name
 
@@ -49,7 +51,6 @@ target_dataset = tf.data.Dataset.from_tensor_slices(np.reshape(X, (X.shape[0], 1
 
 # use_statistics = [1, 3]  # e.g use the layer-1 and layer-3 statistics
 use_statistics = [1]
-batch_size = 2000
 
 '''
 # WARNING: if you reuse the statistics, make sure the order of the vertexes is the same

@@ -2,6 +2,7 @@ import numpy as np
 import sys
 from keras.models import Sequential, model_from_json
 from keras.layers import Dense, Dropout
+import argparse
 
 # Generate dummy data
 #x_train = np.random.random((10, 20))
@@ -12,6 +13,12 @@ from keras.layers import Dense, Dropout
 #---VARIABLE TO SET---
 batch_size=128 #256 #128
 #---------------------
+
+parser = argparse.ArgumentParser()
+parser.add_argument("--name", "-n", default="NoNameSet", help="name of the output file (default NoNameSet)")
+args = parser.parse_args()
+
+name = args.name
 
 print("Loading data...",end="",flush=True)
 #"RESULTS/vector_40_8_SeTNull4lightAll.txt"
@@ -43,8 +50,8 @@ print("Loaded model from disk")
 #    newData=newData[:,:-1]
 #
 pred=loaded_model.predict(x_test)
-with open("RESULTS/pred.txt", "w") as pred_file:
+with open("RESULTS/pred"+name+".txt", "w") as pred_file:
     np.savetxt(pred_file,pred,fmt='%1.4f')
     #pred_file.write(pred)
 
-print("Saved prediction on RESULTS/pred.txt")
+print("Saved prediction on RESULTS/pred"+name+".txt")
